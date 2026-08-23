@@ -1,0 +1,32 @@
+name: Daily Bakery Report
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run the report script
+        run: python bakery_daily_report.py
+
+      - name: Commit the new report
+        run: |
+          git config user.name "bakery-bot"
+          git config user.email "bakery-bot@users.noreply.github.com"
+          git add reports/
+          git commit -m "Add daily report" || echo "Nothing to commit"
+          git push
